@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriel Approbateurs - Continia Approval Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .slide-counter {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .slide {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fff, #f0f9ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            color: #e0f2fe;
+        }
+
+        h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #e0f2fe;
+            opacity: 0.9;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: left;
+            width: 100%;
+        }
+
+        .agenda, .step-description {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .agenda ol {
+            font-size: 1.2rem;
+            line-height: 2.2;
+            padding-left: 1.5rem;
+        }
+
+        .agenda li {
+            margin: 1rem 0;
+            padding-left: 0.5rem;
+        }
+
+        .step-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+            align-items: start;
+        }
+
+        .step-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .screenshot-placeholder {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0;
+            color: #333;
+            text-align: center;
+            border: 2px dashed #666;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screenshot-placeholder.large {
+            min-height: 400px;
+            grid-column: 1 / -1;
+        }
+
+        .screenshot-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .flow-step {
+            text-align: center;
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .flow-step .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: #ffd700;
+            margin: 0 1rem;
+        }
+
+        .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .mobile-screenshot {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #333;
+            text-align: center;
+            border: 2px solid #3b82f6;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .approve-btn {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        .reject-btn {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .info-btn {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.4);
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .success-box {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .contact-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: scale(1.05);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.4s ease;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 0.8rem;
+        }
+
+        .intro-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .intro-content p {
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        ul {
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        ul li {
+            margin: 0.8rem 0;
+        }
+
+        .centered-content {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <div class="header">
+            <div class="logo">📱 TUTORIEL APPROBATEURS - CONTINIA</div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+            </div>
+        </div>
+
+        <!-- Slide 1: Titre -->
+        <div class="slide active">
+            <div class="intro-content">
+                <h1>Tutoriel Approbateurs</h1>
+                <div class="subtitle">Guide visuel du système d'approbation Continia</div>
+                <div class="subtitle">Deminor Litigation Funding - Mai 2025</div>
+                <div style="margin-top: 3rem;">
+                    <p><strong>Formation pratique :</strong> Comment approuver vos factures en quelques clics</p>
+                    <p><strong>Durée :</strong> 10 minutes de démonstration</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h2>📋 Agenda de la Formation</h2>
+            <div class="content">
+                <div class="agenda">
+                    <ol>
+                        <li>Vue d'ensemble du processus d'approbation</li>
+                        <li>Interface Purchaser - Point de départ</li>
+                        <li>Notification d'approbation reçue</li>
+                        <li>Interface Continia Approver (Web Portal)</li>
+                        <li>Actions disponibles - Démonstration</li>
+                        <li>Utilisation mobile (iPhone/Android)</li>
+                        <li>Après approbation - Suivi</li>
+                        <li>Cas pratiques et exemples</li>
+                        <li>Dépannage et support</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Vue d'ensemble -->
+        <div class="slide">
+            <h2>🔄 Vue d'Ensemble du Processus</h2>
+            <div class="content">
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <span class="emoji">📄</span>
+                        <h4>1. Facture reçue</h4>
+                        <p>OCR automatique</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <span class="emoji">📧</span>
+                        <h4>2. Notification</h4>
+                        <p>Email automatique</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <span class="emoji">👀</span>
+                        <h4>3. Révision</h4>
+                        <p>Web Portal/Mobile</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <span class="emoji">✅</span>
+                        <h4>4. Décision</h4>
+                        <p>Approuver/Refuser</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <span class="emoji">📊</span>
+                        <h4>5. Traitement</h4>
+                        <p>Business Central</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h4><span class="emoji">⏱️</span>Votre rôle dans le processus</h4>
+                    <p>Vous intervenez à l'<strong>étape 3 et 4</strong> : recevoir la notification, examiner la facture et prendre une décision d'approbation. 
+                    Le reste est automatique !</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Interface Purchaser -->
+        <div class="slide">
+            <h2>💼 Interface Purchaser - Point de Départ</h2>
+            <div class="content">
+                <div class="step-grid">
+                    <div class="step-card">
+                        <h4><span class="emoji">📋</span>Ce que vous voyez ici :</h4>
+                        <ul>
+                            <li><strong>Liste des demandes d'approbation</strong> en cours</li>
+                            <li><strong>Statut de chaque facture</strong> (En attente, Approuvée, Refusée)</li>
+                            <li><strong>Informations essentielles :</strong> Fournisseur, montant, date</li>
+                            <li><strong>Actions possibles :</strong> Voir détails, suivre progression</li>
+                        </ul>
+                        <div class="info-box">
+                            <p><strong>Note :</strong> Cette vue est principalement pour les demandeurs. 
+                            En tant qu'approbateur, vous recevrez une notification email.</p>
+                        </div>
+                    </div>
+                    <div class="screenshot-placeholder">
+                        <div class="screenshot-title">📸 Capture d'écran : Interface Purchaser</div>
+                        <div class="screenshot-description">
+                            Vue de la liste des factures en attente d'approbation avec les colonnes :
+                            <br>• Document Type
+                            <br>• Document No.
+                            <br>• Vendor Name
+                            <br>• Amount
+                            <br>• Status
+                            <br>• Approver
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Notification reçue -->
+        <div class="slide">
+            <h2>📧 Notification : "An Approval Request Has Been Sent"</h2>
+            <div class="content">
+                <div class="step-grid">
+                    <div class="screenshot-placeholder">
+                        <div class="screenshot-title">📸 Capture d'écran : Notification système</div>
+                        <div class="screenshot-description">
+                            Message de confirmation automatique :
+                            <br>"An approval request has been sent"
+                            <br><br>Cette notification confirme qu'une demande d'approbation 
+                            a été transmise aux approbateurs concernés.
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <h4><span class="emoji">📨</span>Que se passe-t-il maintenant ?</h4>
+                        <ul>
+                            <li><strong>Email automatique</strong> envoyé aux approbateurs</li>
+                            <li><strong>Notification dans Business Central</strong></li>
+                            <li><strong>Accès via Web Portal</strong> Continia</li>
+                            <li><strong>Rappels automatiques</strong> si pas de réponse</li>
+                        </ul>
+                        <div class="warning-box">
+                            <p><strong><span class="emoji">⚠️</span>Important :</strong> 
+                            En tant qu'approbateur, vous recevrez un email avec un lien direct 
+                            pour traiter la demande rapidement.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Interface Continia Approver -->
+        <div class="slide">
+            <h2>🖥️ Interface Continia Approver (Web Portal)</h2>
+            <div class="content">
+                <div class="screenshot-placeholder large">
+                    <div class="screenshot-title">📸 Capture d'écran : Document Capture Continia Approver</div>
+                    <div class="screenshot-description">
+                        Interface principale d'approbation montrant :
+                        <br>• <strong>Document details :</strong> Informations complètes de la facture
+                        <br>• <strong>Vendor information :</strong> Nom et détails du fournisseur
+                        <br>• <strong>Amount :</strong> Montant total et décomposition
+                        <br>• <strong>Approval actions :</strong> Boutons Approve/Reject/Request Info
+                        <br>• <strong>Document preview :</strong> Visualisation de la facture originale
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h4><span class="emoji">💡</span>Fonctionnalités clés de cette interface :</h4>
+                    <p><strong>Accès complet aux informations :</strong> Vous avez tout sous les yeux pour prendre une décision éclairée.</p>
+                    <p><strong>Actions simples :</strong> 3 boutons principaux pour vos décisions.</p>
+                    <p><strong>Interface intuitive :</strong> Toutes les informations importantes sont visibles d'un coup d'œil.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Actions disponibles -->
+        <div class="slide">
+            <h2>⚡ Actions Disponibles - Vos 3 Choix</h2>
+            <div class="content">
+                <div class="action-buttons">
+                    <button class="action-btn approve-btn">✅ APPROVE</button>
+                    <button class="action-btn reject-btn">❌ REJECT</button>
+                    <button class="action-btn info-btn">❓ REQUEST INFO</button>
+                </div>
+                
+                <div class="step-grid">
+                    <div class="step-card">
+                        <h4><span class="emoji">✅</span>APPROVE - Approuver</h4>
+                        <ul>
+                            <li><strong>Quand l'utiliser :</strong> Facture conforme et autorisée</li>
+                            <li><strong>Vérifications :</strong> Fournisseur, montant, service correct</li>
+                            <li><strong>Action :</strong> Clic simple → Facture approuvée</li>
+                            <li><strong>Commentaire :</strong> Optionnel mais recommandé</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h4><span class="emoji">❌</span>REJECT - Refuser</h4>
+                        <ul>
+                            <li><strong>Quand l'utiliser :</strong> Facture incorrecte ou non autorisée</li>
+                            <li><strong>Motif obligatoire :</strong> Expliquer pourquoi vous refusez</li>
+                            <li><strong>Exemples :</strong> Montant incorrect, service non commandé</li>
+                            <li><strong>Résultat :</strong> Facture retourne au demandeur</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="step-card">
+                    <h4><span class="emoji">❓</span>REQUEST INFO - Demander des informations</h4>
+                    <ul>
+                        <li><strong>Quand l'utiliser :</strong> Informations manquantes ou peu claires</li>
+                        <li><strong>Exemples :</strong> "Bon de commande manquant", "Préciser le service concerné"</li>
+                        <li><strong>Avantage :</strong> Évite un refus définitif, permet la correction</li>
+                        <li><strong>Processus :</strong> Demande retourne au demandeur pour clarification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Purchase Approval Entries -->
+        <div class="slide">
+            <h2>📊 Purchase Approval Entries - Suivi</h2>
+            <div class="content">
+                <div class="step-grid">
+                    <div class="step-card">
+                        <h4><span class="emoji">📈</span>À quoi sert cette vue ?</h4>
+                        <ul>
+                            <li><strong>Historique complet</strong> de vos approbations</li>
+                            <li><strong>Statut en temps réel</strong> des demandes</li>
+                            <li><strong>Traçabilité</strong> de toutes vos décisions</li>
+                            <li><strong>Recherche et filtres</strong> par date, fournisseur, montant</li>
+                        </ul>
+                        <div class="success-box">
+                            <p><strong><span class="emoji">📊</span>Conseil :</strong> 
+                            Consultez régulièrement cette vue pour suivre l'état de vos approbations 
+                            et identifier les demandes en attente.</p>
+                        </div>
+                    </div>
+                    <div class="screenshot-placeholder">
+                        <div class="screenshot-title">📸 Capture d'écran : Purchase Approval Entries</div>
+                        <div class="screenshot-description">
+                            Liste détaillée montrant :
+                            <br>• Entry No.
+                            <br>• Document Type & No.
+                            <br>• Sequence No.
+                            <br>• Approval Code
+                            <br>• Sender ID
+                            <br>• Approver ID
+                            <br>• Status (Open/Approved/Rejected)
+                            <br>• Date-Time Sent
+                            <br>• Amount (LCY)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Utilisation mobile -->
+        <div class="slide">
+            <h2>📱 Utilisation Mobile - iPhone/Android</h2>
+            <div class="content">
+                <div class="centered-content">
+                    <h3><span class="emoji">🎯</span>Approuvez vos factures où que vous soyez !</h3>
+                </div>
+                
+                <div class="mobile-grid">
+                    <div class="mobile-screenshot">
+                        <div class="screenshot-title">📱 Écran 1</div>
+                        <div class="screenshot-description">
+                            Liste des factures en attente sur mobile
+                            <br>Interface optimisée tactile
+                        </div>
+                    </div>
+                    <div class="mobile-screenshot">
+                        <div class="screenshot-title">📱 Écran 2</div>
+                        <div class="screenshot-description">
+                            Détails de la facture
+                            <br>Toutes infos visibles
+                        </div>
+                    </div>
+                    <div class="mobile-screenshot">
+                        <div class="screenshot-title">📱 Écran 3</div>
+                        <div class="screenshot-description">
+                            Actions d'approbation
+                            <br>Boutons gros et clairs
+                        </div>
+                    </div>
+                    <div class="mobile-screenshot">
+                        <div class="screenshot-title">📱 Écran 4</div>
+                        <div class="screenshot-description">
+                            Confirmation d'action
+                            <br>Feedback immédiat
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h4><span class="emoji">📲</span>Avantages de l'utilisation mobile :</h4>
+                    <ul>
+                        <li><strong>Approbation instantanée :</strong> Plus besoin d'attendre d'être au bureau</li>
+                        <li><strong>Notifications push :</strong> Alertes directes sur votre téléphone</li>
+                        <li><strong>Interface adaptée :</strong> Optimisée pour les écrans tactiles</li>
+                        <li><strong>Sécurité :</strong> Même niveau de sécurité que la version desktop</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Après approbation -->
+        <div class="slide">
+            <h2>✅ Après Approbation - Purchase Invoices (Released)</h2>
+            <div class="content">
+                <div class="step-grid">
+                    <div class="screenshot-placeholder">
+                        <div class="screenshot-title">📸 Capture d'écran : Purchase Invoices (Released)</div>
+                        <div class="screenshot-description">
+                            Vue finale des factures approuvées :
+                            <br>• Status: "Released" - Ready to be posted
+                            <br>• Toutes informations validées
+                            <br>• Prêt pour comptabilisation
+                            <br>• Traçabilité complète du processus
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <h4><span class="emoji">🎯</span>Que se passe-t-il après votre approbation ?</h4>
+                        <ul>
+                            <li><strong>Statut "Released" :</strong> Facture prête pour traitement final</li>
+                            <li><strong>Notification équipe comptable :</strong> Alerte automatique</li>
+                            <li><strong>Intégration Business Central :</strong> Données transférées</li>
+                            <li><strong>Comptabilisation :</strong> Traitement par l'équipe Finance</li>
+                        </ul>
+                        <div class="success-box">
+                            <p><strong><span class="emoji">✨</span>Mission accomplie !</strong> 
+                            Votre approbation a permis de faire avancer le processus. 
+                            La facture sera maintenant traitée par l'équipe comptable.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Cas pratiques -->
+        <div class="slide">
+            <h2>🎯 Cas Pratiques - Exemples Concrets</h2>
+            <div class="content">
+                <div class="step-grid">
+                    <div class="step-card">
+                        <h4><span class="emoji">✅</span>Cas 1 : Facture à APPROUVER</h4>
+                        <p><strong>Situation :</strong> Facture IT Solutions - €1,200</p>
+                        <ul>
+                            <li>Fournisseur habituel ✓</li>
+                            <li>Montant dans votre budget ✓</li>
+                            <li>Service : Maintenance serveurs ✓</li>
+                            <li>Bon de commande visible ✓</li>
+                        </ul>
+                        <div class="success-box">
+                            <p><strong>Action :</strong> Cliquez "APPROVE" + commentaire "Conforme au contrat"</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <h4><span class="emoji">❌</span>Cas 2 : Facture à REFUSER</h4>
+                        <p><strong>Situation :</strong> Nouveau fournisseur - €3,500</p>
+                        <ul>
+                            <li>Fournisseur inconnu ❌</li>
+                            <li>Aucun bon de commande ❌</li>
+                            <li>Service non identifié ❌</li>
+                            <li>Montant élevé ❌</li>
+                        </ul>
+                        <div class="warning-box">
+                            <p><strong>Action :</strong> Cliquez "REJECT" + motif "Fournisseur non autorisé - Aucun BC"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <h4><span class="emoji">❓</span>Cas 3 : Demander des informations</h4>
+                    <p><strong>Situation :</strong> Facture services conseil - €2,800</p>
+                    <ul>
+                        <li>Fournisseur connu mais description vague</li>
+                        <li>Pas de référence au projet concerné</li>
+                        <li>Montant important pour du conseil</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>Action :</strong> Cliquez "REQUEST INFO" + question "Quel projet ? Détail des services rendus ?"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Support et contacts -->
+        <div class="slide">
+            <h2>🆘 Support et Dépannage</h2>
+            <div class="content">
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <h4><span class="emoji">👨‍💼</span>Questions Processus</h4>
+                        <p><strong>Arnaud Dalaroy</strong></p>
+                        <p>Accounting Analyst</p>
+                        <p>arnaud.dalaroy@deminor.com</p>
+                        <p><em>Comment utiliser le système</em></p>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span class="emoji">🔧</span>Problèmes Techniques</h4>
+                        <p><strong>David Amic</strong></p>
+                        <p>Senior Accountant</p>
+                        <p>David.Amic@deminor.com</p>
+                        <p><em>Bugs, connexion, erreurs</em></p>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span class="emoji">💻</span>Support IT</h4>
+                        <p><strong>Franky Van Gijsel</strong></p>
+                        <p>Manager IT et Finance</p>
+                        <p>franky.vangijsel@deminor.com</p>
+                        <p><em>Infrastructure, accès</em></p>
+                    </div>
+                    <div class="contact-card">
+                        <h4><span class="emoji">💼</span>Décisions Business</h4>
+                        <p><strong>Bertrand Beauchesne</strong></p>
+                        <p>CFO</p>
+                        <p>bertrand.beauchesne@deminor.com</p>
+                        <p><em>Règles d'approbation</em></p>
+                    </div>
+                </div>
+                
+                <div class="step-grid">
+                    <div class="step-card">
+                        <h4><span class="emoji">❓</span>FAQ Rapide</h4>
+                        <ul>
+                            <li><strong>Pas de notification reçue ?</strong> → Vérifier spams, contacter Arnaud</li>
+                            <li><strong>Impossible de se connecter ?</strong> → Contacter David ou Franky</li>
+                            <li><strong>Erreur lors de l'approbation ?</strong> → Noter le message, contacter David</li>
+                            <li><strong>Doute sur une facture ?</strong> → Utiliser "REQUEST INFO" au lieu de refuser</li>
+                        </ul>
+                    </div>
+                    <div class="step-card">
+                        <h4><span class="emoji">🔗</span>Accès Rapides</h4>
+                        <ul>
+                            <li><strong>Web Portal :</strong> [URL à définir]</li>
+                            <li><strong>Business Central :</strong> Accès habituel</li>
+                            <li><strong>Support Email :</strong> accounting@deminor.com</li>
+                            <li><strong>Documentation :</strong> Tutoriel complet disponible</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <h3><span class="emoji">🎓</span>Félicitations !</h3>
+                    <p style="font-size: 1.3rem; margin-top: 1rem;">Vous êtes maintenant prêt(e) à utiliser le système d'approbation Continia !</p>
+                    <div class="success-box" style="margin-top: 2rem;">
+                        <p><strong>Prochaine étape :</strong> Vous recevrez bientôt votre première notification d'approbation. 
+                        N'hésitez pas à nous contacter pour toute question !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Précédent</button>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Suivant →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            document.getElementById('progressBar').style.width = ((index + 1) / totalSlides) * 100 + '%';
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                currentSlideIndex = newIndex;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                case 'PageDown':
+                    changeSlide(1);
+                    event.preventDefault();
+                    break;
+                case 'ArrowLeft':
+                case 'PageUp':
+                    changeSlide(-1);
+                    event.preventDefault();
+                    break;
+                case 'Home':
+                    currentSlideIndex = 0;
+                    showSlide(currentSlideIndex);
+                    event.preventDefault();
+                    break;
+                case 'End':
+                    currentSlideIndex = totalSlides - 1;
+                    showSlide(currentSlideIndex);
+                    event.preventDefault();
+                    break;
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
